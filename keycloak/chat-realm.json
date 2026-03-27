@@ -1,0 +1,17 @@
+{
+  "realm": "chat",
+  "displayName": "Disaster Chat",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "chat-app",
+      "name": "Disaster Chat",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "standardFlowEnabled": true
+    }
+  ]
+}
