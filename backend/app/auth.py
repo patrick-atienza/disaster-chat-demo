@@ -3,8 +3,6 @@ import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-# spent way too long debugging this -- the internal docker hostname is
-# different from what the browser uses for the JWKS endpoint
 KEYCLOAK_URL = os.environ.get("KEYCLOAK_URL", "http://localhost:8080")
 REALM = "chat"
 JWKS_URL = f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/certs"
@@ -34,7 +32,8 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         username = payload.get("preferred_username")
         if not username:
             raise HTTPException(status_code=401, detail="Missing username in token")
-        name = payload.get("name", username)
-        return {"email": username, "name": name}
+        first_name = payload.get("given_name", "")
+        last_name = payload.get("family_name", "")
+        return {"email": username, "first_name": first_name, "last_name": last_name}
     except jwt.exceptions.PyJWTError:
         raise HTTPException(status_code=401, detail="Token verification failed")

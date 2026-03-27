@@ -53,8 +53,13 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False, default="")
     email = Column(String(100), unique=True, nullable=False, index=True)
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}".strip()
     password_hash = Column(String(128), nullable=False)
     password_salt = Column(String(64), nullable=False)
     last_lat = Column(Float, nullable=True)
@@ -101,7 +106,8 @@ class Message(Base):
 # schemas
 
 class UserCreate(BaseModel):
-    name: str
+    first_name: str
+    last_name: str = ""
     email: str
     password: str
 
@@ -109,6 +115,8 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    first_name: str
+    last_name: str
     name: str
     email: str
     last_lat: float | None = None

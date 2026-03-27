@@ -4,7 +4,7 @@ import ChatGroup from '../components/ChatGroup.vue'
 
 const mockGroups = [{ id: 1, name: 'Test Group', members: [] }]
 const mockMessages = [
-  { id: 1, content: 'Hello!', created_at: '2025-01-01T12:00:00Z', sender_id: 2, group_id: 1, sender: { id: 2, name: 'Bob Miller' } },
+  { id: 1, content: 'Hello!', created_at: '2025-01-01T12:00:00Z', sender_id: 2, group_id: 1, sender: { id: 2, first_name: 'Bob', last_name: 'Miller', name: 'Bob Miller' } },
 ]
 
 let mockSocketCallbacks = {}
@@ -24,7 +24,7 @@ vi.mock('../socket.js', () => ({
 }))
 
 describe('ChatGroup', () => {
-  const currentUser = { id: 1, name: 'alice', email: 'alice@email.com' }
+  const currentUser = { id: 1, first_name: 'alice', last_name: '', name: 'alice', email: 'alice@email.com' }
 
   beforeEach(() => {
     mockSend.mockClear()

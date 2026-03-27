@@ -8,9 +8,11 @@ KEYCLOAK_URL = os.environ.get("KEYCLOAK_URL", "http://localhost:8080")
 
 # coords are rough - picked from google maps manually
 USERS = [
-    {"name": "James Wilson", "email": "james.wilson@email.com", "last_lat": 35.6595, "last_lng": 139.7004},
-    {"name": "Sarah Chen", "email": "sarah.chen@email.com", "last_lat": 35.6614, "last_lng": 139.7036},
-    {"name": "Tommy", "email": "tom.martinez@email.com", "last_lat": 35.6580, "last_lng": 139.6982},
+    {"first_name": "James", "last_name": "Wilson", "email": "james.wilson@email.com", "last_lat": 35.6595, "last_lng": 139.7004},
+    {"first_name": "Sarah", "last_name": "Chen", "email": "sarah.chen@email.com", "last_lat": 35.6614, "last_lng": 139.7036},
+    {"first_name": "Tommy", "last_name": "Martinez", "email": "tom.martinez@email.com", "last_lat": 35.6580, "last_lng": 139.6982},
+    {"first_name": "Emily", "last_name": "Davis", "email": "emily.davis@email.com", "last_lat": 35.6627, "last_lng": 139.6990},
+    {"first_name": "Mike", "last_name": "Johnson", "email": "mike.johnson@email.com", "last_lat": 35.6563, "last_lng": 139.7020},
 ]
 
 
@@ -42,11 +44,7 @@ def get_keycloak_admin_token():
     return resp.json()["access_token"]
 
 
-def create_keycloak_user(token, email, name, password="password"):
-    parts = name.split(" ", 1)
-    first = parts[0]
-    last = parts[1] if len(parts) > 1 else ""
-
+def create_keycloak_user(token, email, first_name, last_name="", password="password"):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     # skip if they already exist
@@ -62,8 +60,8 @@ def create_keycloak_user(token, email, name, password="password"):
     user_data = {
         "username": email,
         "email": email,
-        "firstName": first,
-        "lastName": last,
+        "firstName": first_name,
+        "lastName": last_name,
         "enabled": True,
         "credentials": [{"type": "password", "value": password, "temporary": False}],
     }
@@ -84,38 +82,37 @@ def seed():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
-    # skip if already seeded
+    # skip db seed if already seeded
     if db.query(User).first():
-        print("already seeded")
-        db.close()
-        return
+        print("already seeded db")
+    else:
+        users = []
+        for u in USERS:
+            pw_hash, salt = hash_password("password")
+            user = User(
+                first_name=u["first_name"],
+                last_name=u["last_name"],
+                email=u["email"],
+                password_hash=pw_hash,
+                password_salt=salt,
+                last_lat=u["last_lat"],
+                last_lng=u["last_lng"],
+            )
+            db.add(user)
+            db.flush()
+            users.append(user)
 
-    users = []
-    for u in USERS:
-        pw_hash, salt = hash_password("password")
-        user = User(
-            name=u["name"],
-            email=u["email"],
-            password_hash=pw_hash,
-            password_salt=salt,
-            last_lat=u["last_lat"],
-            last_lng=u["last_lng"],
-        )
-        db.add(user)
-        db.flush()
-        users.append(user)
+        group = Group(name="Area 1")
+        group.members = users
+        db.add(group)
+        db.commit()
+        print(f"seeded {len(users)} users in db")
 
-    group = Group(name="Area 1")
-    group.members = users
-    db.add(group)
-    db.commit()
-    print(f"seeded {len(users)} users in db")
-
-    # now push them to keycloak so they can actually log in
+    # always ensure keycloak users exist (keycloak has no persistent volume)
     try:
         token = get_keycloak_admin_token()
         for u in USERS:
-            create_keycloak_user(token, u["email"], u["name"])
+            create_keycloak_user(token, u["email"], u["first_name"], u["last_name"])
     except Exception as e:
         # keycloak might not be ready yet, can always add them from admin console
         print(f"warning: couldn't seed keycloak users: {e}")

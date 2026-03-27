@@ -6,8 +6,6 @@ services:
       MYSQL_DATABASE: chat
       MYSQL_USER: chat
       MYSQL_PASSWORD: chat
-    ports:
-      - "3306:3306"
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
@@ -18,12 +16,10 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
-    command: start-dev --import-realm  # not for prod
+    command: start-dev --import-realm --proxy-headers=xforwarded  # not for prod
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin  # FIXME: change before going live
-    ports:
-      - "8080:8080"
     volumes:
       - ./keycloak/chat-realm.json:/opt/keycloak/data/import/chat-realm.json:ro
     healthcheck:
@@ -35,8 +31,6 @@ services:
 
   backend:
     build: ./backend
-    ports:
-      - "8000:8000"
     environment:
       DATABASE_URL: mysql+pymysql://chat:chat@db:3306/chat
       KEYCLOAK_URL: http://keycloak:8080
@@ -49,9 +43,10 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - backend
+      - keycloak
 
 volumes:
   db-data:

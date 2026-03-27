@@ -39,7 +39,7 @@ def override_get_db(db):
             pass
 
     def _mock_auth():
-        return {"email": "testuser@email.com", "name": "dev"}
+        return {"email": "testuser@email.com", "first_name": "dev", "last_name": ""}
 
     app.dependency_overrides[get_db] = _override
     app.dependency_overrides[get_current_user] = _mock_auth

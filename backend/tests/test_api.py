@@ -12,12 +12,12 @@ async def client(override_get_db):
 
 
 async def test_create_user(client: AsyncClient):
-    resp = await client.post("/api/users", json={"name": "alice", "email": "alice@email.com", "password": "password"})
+    resp = await client.post("/api/users", json={"first_name": "alice", "last_name": "", "email": "alice@email.com", "password": "password"})
     assert resp.status_code == 201
-    assert resp.json()["name"] == "alice"
+    assert resp.json()["first_name"] == "alice"
 
     # dupe should fail
-    resp2 = await client.post("/api/users", json={"name": "alice2", "email": "alice@email.com", "password": "password"})
+    resp2 = await client.post("/api/users", json={"first_name": "alice2", "last_name": "", "email": "alice@email.com", "password": "password"})
     assert resp2.status_code == 400
 
 
@@ -26,7 +26,7 @@ async def test_groups_and_messages(client: AsyncClient):
     assert resp.status_code == 201
     group = resp.json()
 
-    u = (await client.post("/api/users", json={"name": "testguy", "email": "testguy@email.com", "password": "password"})).json()
+    u = (await client.post("/api/users", json={"first_name": "testguy", "last_name": "", "email": "testguy@email.com", "password": "password"})).json()
     await client.post(f"/api/groups/{group['id']}/members/{u['id']}")
 
     msgs = await client.get(f"/api/groups/{group['id']}/messages")
@@ -38,7 +38,7 @@ async def test_ws_chat(override_get_db):
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        u = (await client.post("/api/users", json={"name": "dave", "email": "dave@email.com", "password": "password"})).json()
+        u = (await client.post("/api/users", json={"first_name": "dave", "last_name": "", "email": "dave@email.com", "password": "password"})).json()
         group = (await client.post("/api/groups", json={"name": "test room"})).json()
         await client.post(f"/api/groups/{group['id']}/members/{u['id']}")
 

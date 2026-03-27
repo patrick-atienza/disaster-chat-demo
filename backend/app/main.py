@@ -58,7 +58,8 @@ def get_authenticated_user(
     if not user:
         pw_hash, salt = hash_password("password")
         user = User(
-            name=token_user["name"],
+            first_name=token_user["first_name"],
+            last_name=token_user["last_name"],
             email=token_user["email"],
             password_hash=pw_hash,
             password_salt=salt,
@@ -80,7 +81,8 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="email already exists")
     pw_hash, salt = hash_password(payload.password)
     user = User(
-        name=payload.name,
+        first_name=payload.first_name,
+        last_name=payload.last_name,
         email=payload.email,
         password_hash=pw_hash,
         password_salt=salt,

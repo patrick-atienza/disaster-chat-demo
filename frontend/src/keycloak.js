@@ -1,7 +1,7 @@
 import Keycloak from 'keycloak-js'
 
 const keycloak = new Keycloak({
-  url: window.__KEYCLOAK_URL__ || 'http://localhost:8080',
+  url: window.__KEYCLOAK_URL__ || window.location.origin,
   realm: 'chat',
   clientId: 'chat-app',
 })
