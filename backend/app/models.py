@@ -1,5 +1,7 @@
-import os
+
 import hashlib
+import os
+
 from sqlalchemy import (
     Column, Integer, String, Text,
     Float, ForeignKey, Table,
@@ -9,23 +11,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime, timezone
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "mysql+pymysql://chat:chat@localhost:3306/chat",
-)
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+from app.database import Base
 
 group_members = Table(
     "group_members",
@@ -101,44 +87,3 @@ class Message(Base):
 
     sender = relationship("User", back_populates="messages")
     group = relationship("Group", back_populates="messages")
-
-
-# schemas
-
-class UserCreate(BaseModel):
-    first_name: str
-    last_name: str = ""
-    email: str
-    password: str
-
-
-class UserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    first_name: str
-    last_name: str
-    name: str
-    email: str
-    last_lat: float | None = None
-    last_lng: float | None = None
-
-
-class GroupCreate(BaseModel):
-    name: str
-
-
-class GroupResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    name: str
-    members: list[UserOut] = []
-
-
-class MessageOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
-    content: str
-    created_at: datetime
-    sender_id: int
-    group_id: int
-    sender: UserOut

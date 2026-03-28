@@ -5,7 +5,6 @@
         <div>
           <div class="fw-semibold fs-5">{{ groupName }}</div>
           <small class="status-dot" :class="connected ? 'text-success' : 'text-warning'">
-            <span class="d-inline-block rounded-circle me-1" :class="connected ? 'bg-success' : 'bg-warning'" style="width: 6px; height: 6px"></span>
             {{ connected ? 'Connected' : 'Connecting...' }}
           </small>
         </div>
@@ -87,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { fetchGroups, fetchMessages } from '../api.js'
 import { createChatSocket } from '../socket.js'
 
@@ -120,14 +119,11 @@ function avatarColor(name) {
   return userColors[name]
 }
 
-let pendingId = 0
 
 function sendMessage() {
   const text = newMessage.value.trim()
   if (!text || !socket) return
-  const tempId = `pending-${++pendingId}`
   messages.value.push({
-    id: tempId,
     content: text,
     sender_id: props.currentUser.id,
     sender_name: props.currentUser.name,
@@ -206,7 +202,7 @@ onUnmounted(() => {
 }
 
 .msg-mine {
-  background: #0d6efd;
+  background: #0c62e2;
   color: white;
   border-radius: 12px 12px 2px 12px;
 }

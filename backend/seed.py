@@ -2,7 +2,9 @@ import time
 import os
 import requests
 from sqlalchemy import text
-from app.models import engine, SessionLocal, Base, User, Group, hash_password
+
+from app.database import engine, SessionLocal
+from app.models import Base, User, Group, hash_password
 
 KEYCLOAK_URL = os.environ.get("KEYCLOAK_URL", "http://localhost:8080")
 

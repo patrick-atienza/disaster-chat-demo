@@ -3,11 +3,9 @@ export function createChatSocket(groupId, userId, { onMessage, onOpen, onClose }
   const url = `${protocol}://${location.host}/ws/${groupId}/${userId}`
   // console.log('connecting to', url)
   const ws = new WebSocket(url)
-  let reconnectTimer = null
 
   ws.onopen = () => onOpen?.()
   ws.onclose = () => {
-    // clearTimeout(reconnectTimer)
     onClose?.()
   }
   ws.onerror = (e) => console.warn('ws error', e)  // happens sometimes on chrome
