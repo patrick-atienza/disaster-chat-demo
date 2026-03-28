@@ -49,7 +49,6 @@ Available users (password is `password`):
 
 ```
 cd backend && python -m pytest
-cd frontend && npx vitest run
 ```
 
 ## Some issues

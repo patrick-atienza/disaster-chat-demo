@@ -11,12 +11,12 @@ router = APIRouter(
     tags=["groups"],
 )
 
-@router.get("/", response_model=list[GroupResponse])
+@router.get("", response_model=list[GroupResponse])
 def get_groups(db: Session = Depends(get_db)):
     return db.query(Group).all()
 
 
-@router.post("/", response_model=GroupResponse, status_code=201)
+@router.post("", response_model=GroupResponse, status_code=201)
 def create_group(payload: GroupCreate, db: Session = Depends(get_db)):
     group = Group(name=payload.name)
     db.add(group)
